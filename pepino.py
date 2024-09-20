@@ -124,15 +124,13 @@ def execute(command):
     global log,logs
     try:
             if sys.platform == "win32":
-                CREATE_NO_WINDOW = "0x08000000"
                 result = subprocess.run(
                     command,
-                    shell=True,
+                    shell=False,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    text=True,
-                    creationflags=CREATE_NO_WINDOW
-                )
+                    text=True )
+                    
             else:
             
                 result = subprocess.run(
