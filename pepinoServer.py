@@ -72,7 +72,7 @@ def recvFiles(filename, extension):
                     data = conn.recv(4096)
                     f.write(data)
                     totalRecv += len(data)
-                print("[+] FILE SAVED")
+                print(f"[+] FILE SAVED | {totalRecv} BYTES RECIVED")
             stop = False
         else:
             print("[-] ERROR ")
