@@ -56,13 +56,13 @@ def recvFiles(filename, extension):
     try:
         ln = recvLen()
         totalRecv = 0
-        
-        file = lambda filename, extension:
+        print(f"[i] FILE LENGTH RECIVED {ln}")
+        def file(filename, extension):
             name = ""
             if extension == ".png":
                 name = filename + existsFile(filename,".png") + ".png"
             else:
-                name = filename + existsFile(filename, extension) + extension
+                name = filename + str(existsFile(filename, extension)) + extension
                 
             return name
         

