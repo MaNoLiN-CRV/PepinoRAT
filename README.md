@@ -1,56 +1,76 @@
-Remote Access Trojan (RAT) - Python Implementation
-This Python-based Remote Access Trojan (RAT) provides a wide range of functionalities for remote monitoring and control of a compromised system. It includes features like system information retrieval, remote execution, keylogging, and even taking screenshots. The RAT can operate across both Windows and Linux platforms, adjusting commands and execution accordingly.
+# RAT (Remote Access Trojan)
 
-Features
-1. Socket-based Communication
-Establishes a persistent connection to a remote server using TCP sockets. Allows sending and receiving of commands and data from the server.
-Usage: This is the core of the communication mechanism between the RAT and the command-and-control server.
-2. Remote Command Execution
-Allows remote execution of system commands through the RAT, adapting to the platform (Windows/Linux).
-Windows: Uses cmd.exe for command execution.
-Linux: Executes commands directly via shell.
-3. Keylogger
-Captures all keystrokes on the victim’s machine and saves them into a log file (keys.txt).
-Real-time logging: It logs in real-time, sending captured keystrokes to the server.
-4. Screenshot Capture
-Captures a screenshot of the victim's desktop and sends the image to the remote server.
-Cross-platform support: Utilizes the pyscreenshot library for compatibility across multiple operating systems.
-5. System Information
-Retrieves detailed information about the victim’s system, including the operating system, processor, and platform details.
-Usage: Displays critical system metadata for further exploitation.
-6. WinPEAS & LinPEAS Integration
-Automates the execution of winPEAS (Windows Privilege Escalation tool) and linPEAS (Linux Privilege Escalation tool) to gather security-related information.
-Windows: Downloads and executes the latest winPEAS release.
-Linux: Downloads and executes linPEAS through a curl one-liner.
-7. Log Handling
-Manages logging for various events and errors within the RAT, with options to enable or disable logging.
-Real-time: Can send logs to the server upon request.
-8. Memory Ripper
-Executes a destructive operation called "memory ripper," designed to corrupt memory and files with random symbols.
-Usage: Primarily for testing or destructive purposes.
-9. Hibernate Mode
-Temporarily pauses the RAT for a specified amount of time, "hibernating" the malware and then resuming after the timeout.
-Usage: Helps to avoid detection by security software.
-10. Connection Status Monitoring
-Continuously checks the connection with the server using a "ping/pong" mechanism.
-Usage: Re-establishes the connection automatically if it's lost.
-11. File Transfer
-Sends and receives files between the compromised machine and the remote server.
-Supports binary transfers such as screenshots or log files.
-12. Process Management
-Uses multiprocessing to handle resource-heavy tasks, such as keylogging, without blocking other operations.
-Example: Runs the keylogger in a separate process to maintain efficiency.
-13. Command Filtering
-Interprets and processes various commands sent from the server, including system info, status requests, keylog retrievals, and more.
-Command types: Can filter, execute, and respond to a wide range of commands based on server requests.
-How to Use
-Start the RAT:
+This is a Python-based Remote Access Trojan (RAT) that provides various features for monitoring and controlling a remote system. The RAT includes functionality for capturing screenshots, keylogging, system information extraction, and executing commands on the remote machine.
 
-The RAT begins by establishing a connection to the remote server using the specified host and port.
-It spawns a keylogger process and continuously checks for incoming commands from the server.
-Send Commands:
+## Features
 
-Commands such as screenshot, status, system info, winpeas, or linpeas can be sent to retrieve information or perform specific actions on the target machine.
-Retrieve Data:
+### 1. **Connection Handling**
+   - **Persistent Connection**: The RAT attempts to maintain a persistent connection to the server, reconnecting if the connection is lost.
+   - **Socket-based Communication**: Uses a socket connection to communicate between the client and server.
 
-The RAT sends back requested information, screenshots, keystrokes, and other data to the remote server over the established connection.
+### 2. **Command Execution**
+   - **Cross-platform Support**: Executes commands on both Windows and Linux operating systems using the system’s native shell (`cmd.exe` on Windows, Bash on Linux).
+   - **Real-time Execution**: Commands can be sent and executed on the remote system in real-time, with the output returned to the server.
+
+### 3. **Screenshot Capture**
+   - **Screen Capture**: Captures a screenshot of the remote desktop and sends it to the server.
+   - **Cross-platform**: Works on both Windows and Linux systems.
+
+### 4. **Keylogger**
+   - **Keylogging**: Logs the keystrokes of the victim's system and sends them to the server.
+   - **Optimized with Multiprocessing**: Uses multiprocessing to run the keylogger independently, improving performance.
+
+### 5. **System Information**
+   - **Detailed System Info**: Retrieves and sends detailed system information such as OS type, node name, processor, and platform.
+
+### 6. **File Transfer**
+   - **Send Files**: Allows sending local files from the victim's machine to the server.
+   - **Receive Files**: Files can be downloaded from the server.
+
+### 7. **PEAS Integration**
+   - **WinPEAS**: Integrates with WinPEAS to perform privilege escalation checks on Windows systems.
+   - **LinPEAS**: Integrates with LinPEAS to perform privilege escalation checks on Linux systems.
+
+### 8. **Log Management**
+   - **Event Logging**: Logs all errors and important events during execution.
+   - **Enable/Disable Logs**: Logs can be toggled on and off by the server.
+
+### 9. **Memory Ripper**
+   - **Memory Corruption Attack**: Executes a function that writes corrupted text repeatedly to memory.
+
+### 10. **Hibernate**
+   - **Temporary Pause**: The RAT can hibernate (pause execution) for a specified number of seconds before resuming.
+
+## Commands
+
+The RAT supports the following commands:
+
+- `screenshot`: Captures and sends a screenshot of the victim's desktop.
+- `status`: Retrieves the status of the connection and RAT parameters.
+- `system info`: Sends detailed system information of the victim's system.
+- `logs true/false`: Enables or disables logging on the victim's system.
+- `show logs`: Sends the current log to the server.
+- `linpeas/linpeas force`: Executes LinPEAS for Linux privilege escalation checks.
+- `winpeas/winpeas force`: Executes WinPEAS for Windows privilege escalation checks.
+- `memory ripper`: Starts a memory corruption attack.
+- `hibernate-X`: Hibernates the RAT for X seconds.
+- `get keylogs`: Sends the logged keys to the server and clears the keylog file.
+
+## Usage
+
+1. **Setup**:
+   - Ensure you have the required Python packages installed (`pyscreenshot`, `keyboard`, etc.).
+   - Modify the `host` and `port` variables to match your server's IP and port.
+
+2. **Running the RAT**:
+   - Execute the script on the victim's machine.
+   - The script will attempt to connect to the server and await further commands.
+
+3. **Sending Commands**:
+   - Use the supported commands to interact with the RAT and the remote system.
+
+## Disclaimer
+
+This tool is intended for educational purposes only. Use it responsibly and only on systems where you have explicit permission. Misuse of this software could lead to legal consequences.
+
+
