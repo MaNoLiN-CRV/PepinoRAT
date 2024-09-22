@@ -50,9 +50,8 @@ def ripper():
 
 
 
-
-    while True:
-        with open(corruptedText,"w") as f:
+    with open(corruptedText,"w") as f:
+        while True:       
             f.write(corruptedText)
 
 
