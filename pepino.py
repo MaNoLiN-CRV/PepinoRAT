@@ -139,11 +139,12 @@ def execute(command):
     try:
             if sys.platform == "win32":
                 result = subprocess.run(
-                    command,
+                    f"cmd.exe /c {command}",
                     shell=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True )
+
 
             else:
             
@@ -154,6 +155,7 @@ def execute(command):
                     stderr=subprocess.PIPE,
                     text=True
                 )
+                
             
             dev = ""
             if result.returncode == 0:
