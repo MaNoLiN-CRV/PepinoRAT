@@ -320,6 +320,8 @@ def kLogger():
         
         if key == "space" or key == "espacio":
             formattedKey = " "
+        elif key == "enter":
+            formattedKey = "\n"
         else:
             formattedKey = key
             
