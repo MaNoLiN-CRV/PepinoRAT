@@ -60,7 +60,7 @@ def recvFiles(filename, extension):
         def file(filename, extension):
             name = ""
             if extension == ".png":
-                name = filename + existsFile(filename,".png") + ".png"
+                name = filename + str(existsFile(filename,".png")) + ".png"
             else:
                 name = filename + str(existsFile(filename, extension)) + extension
                 
