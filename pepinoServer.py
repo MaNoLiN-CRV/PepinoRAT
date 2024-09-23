@@ -160,6 +160,10 @@ def helpPrinter():
     print("""
     LIST OF COMMANDS:
     
+    > DIRECTORY MOVEMENT (LINUX AND WINDOWS)
+        - cd path
+        - pwd (gets the current path)
+    
     > INFO
         - screenshot
         - status
