@@ -3,6 +3,8 @@
 This is a Python-based Remote Access Trojan (RAT) that provides various features for monitoring and controlling a remote system. The RAT includes functionality for capturing screenshots, keylogging, system information extraction, and executing commands on the remote machine.
 
 ## Features
+> [!WARNING]
+> Dont work properly for **Windows** yet.
 
 ### 1. **Connection Handling**
    - **Persistent Connection**: The RAT attempts to maintain a persistent connection to the server, reconnecting if the connection is lost.
@@ -18,7 +20,7 @@ This is a Python-based Remote Access Trojan (RAT) that provides various features
 
 ### 4. **Keylogger**
    - **Keylogging**: Logs the keystrokes of the victim's system and sends them to the server.
-   - **Optimized with Multiprocessing**: Uses multiprocessing to run the keylogger independently, improving performance.
+   - **Optimized with Multithreading**: Uses mulithreading to run the keylogger independently, improving performance.
 
 ### 5. **System Information**
    - **Detailed System Info**: Retrieves and sends detailed system information such as OS type, node name, processor, and platform.
