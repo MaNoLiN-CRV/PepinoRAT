@@ -1,0 +1,4 @@
+*.txt
+*.png
+/.idea
+/Server/*.txt
